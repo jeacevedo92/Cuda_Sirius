@@ -2,7 +2,7 @@
 #include <malloc.h>
 #include <cuda.h>
 
-#define SIZE 655
+#define SIZE 65535
 
 __global__ void VectorAdd(int *a, int *b, int *c)
 {
@@ -15,7 +15,7 @@ __global__ void VectorAdd(int *a, int *b, int *c)
 int main()
 {
 
-	//clock_t start = clock();
+	clock_t start = clock();
 
 	int *a, *b, *c;
 	int *d_a, *d_b, *d_c;
@@ -39,7 +39,11 @@ int main()
 	cudaMemcpy(d_b, b, SIZE*sizeof(int), cudaMemcpyHostToDevice);
 	cudaMemcpy(d_c, c, SIZE*sizeof(int), cudaMemcpyHostToDevice);
 
-	VectorAdd<<<SIZE,1>>>(d_a, d_b, d_c);
+	
+	dim3 dimblock(SIZE,1,1);
+	dim3 dimGrid(1,1,1);
+	
+	VectorAdd<<<dimblock,dimGrid>>>(d_a, d_b, d_c);
 
 	cudaMemcpy(c, d_c, SIZE*sizeof(int), cudaMemcpyDeviceToHost);
 
@@ -54,7 +58,7 @@ int main()
 	cudaFree(d_b);
 	cudaFree(d_c);
 	
-	//printf("Tiempo transcurrido: %f \n ",((double)clock() - start) / CLOCKS_PER_SEC);
+	printf("Tiempo transcurrido: %f \n ",((double)clock() - start) / CLOCKS_PER_SEC);
 
 	return 0;
 }
